@@ -14,7 +14,7 @@ while (1) {
             $guess = $global:words[$rnd]
         }
         Else {
-            $guess = Get-Guess -ExcludeRegex $excludeRegex -IncludeRegex $includeRegex -AnswerRegex $answerRegex
+            $guess = Get-Guess -ExcludeRegex $excludeRegex -IncludeRegex $includeRegex -IncludeRegex2 $includeRegex2 -AnswerRegex $answerRegex
         }
 
     }
@@ -34,6 +34,7 @@ while (1) {
 
     $excludeRegex = Create-ExcludeRegex -GuessResult $guessResult
     $includeRegex = Create-IncludeRegex -GuessResult $guessResult
+    $includeRegex2 = Create-IncludeRegex2 -GuessResult $guessResult
     $answerRegex = Create-AnswerRegex -GuessResult $guessResult
 
     
