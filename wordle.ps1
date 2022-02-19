@@ -3,6 +3,7 @@ $global:excludedLetters = @()
 $global:includedLetters = @()
 $global:correctLetters = @()
 $global:words = Get-Content "$PSScriptRoot\wordle.txt"
+$global:wordLength = 5
 
 Function Get-Guess {
     param (
@@ -12,7 +13,7 @@ Function Get-Guess {
         $answerRegex
     )
     
-    #Write-Host $global:words.Length
+    Write-Host $global:words.Length
 
     $exclusiveWords = @()
     foreach ($word in $global:words) {
@@ -21,7 +22,7 @@ Function Get-Guess {
         }
     }
     #Write-Host $excludeRegex
-   #Write-Host $exclusiveWords.Length
+    Write-Host $exclusiveWords.Length
 
     $inclusiveWords = @()
     foreach ($word in $exclusiveWords) {
@@ -30,7 +31,7 @@ Function Get-Guess {
         }
     }
     #Write-Host $includeRegex
-    #Write-Host $inclusiveWords.Length
+    Write-Host $inclusiveWords.Length
     
     $inclusiveWords2 = @()
     foreach ($word in $inclusiveWords) {
@@ -39,9 +40,9 @@ Function Get-Guess {
         }
     }
     #Write-Host $includeRegex2
-    #Write-Host $inclusiveWords2.Length
+    Write-Host $inclusiveWords2.Length
 
-    #Write-Host $inclusiveWords.Length
+
     $answerWords = @()
     foreach ($word in $inclusiveWords2) {
         If ($word -match $answerRegex) {
@@ -49,17 +50,17 @@ Function Get-Guess {
         }
     }
     #Write-Host $answerRegex
-    #Write-Host $answerWords.Length
+    Write-Host $answerWords.Length
 
 
     if ($answerWords.Length -gt 1) {
         $rnd = Get-Random -Minimum 0 -Maximum $($answerWords.Length - 1)
     }
-    else{
+    else {
         $rnd = 0
     }
     
-    $global:words = $answerWords | Where {$_ -notcontains $answerWords[$rnd]}
+    $global:words = $answerWords | Where { $_ -notcontains $answerWords[$rnd] }
 
     return $answerWords[$rnd]
 }
@@ -76,16 +77,16 @@ Function Check-Guess {
         # answer
         $hint = 0
         $color = 'Red'
-        for ($j = 0; $j -lt $answer.Length; $j++) {
+        for ($j = 0; $j -lt $global:wordLength; $j++) {
             if ($guess[$i] -eq $answer[$j]) {
                 if ($i -eq $j) {
                     Write-Host "$($guess[$i])" -ForegroundColor Green -NoNewline
                     $hint = 2
 
                     $guessResult += [PSCustomObject]@{
-                        Letter = $guess[$i]
+                        Letter    = $guess[$i]
                         Placement = $i
-                        Hint = $hint
+                        Hint      = $hint
                     }
                     continue outer
                 }
@@ -98,12 +99,14 @@ Function Check-Guess {
         }
         Write-Host $guess[$i] -ForegroundColor $color -NoNewline
         $guessResult += [PSCustomObject]@{
-            Letter = $guess[$i]
+            Letter    = $guess[$i]
             Placement = $i
-            Hint = $hint
+            Hint      = $hint
         }
     }
     "`n"
+
+    Write-Host $guessResult
     return $guessResult
 
 }
@@ -121,7 +124,7 @@ Function Create-AnswerRegex {
     #Write-Host "Correct: $($($($($c | Sort-Object Placement).Letter) | Get-Unique) -join '')"
 
     $answerRegex = ""
-    for ($j = 0; $j -lt $answer.Length; $j++) {
+    for ($j = 0; $j -lt $global:wordLength; $j++) {
         $correct = $c | Where-Object Placement -eq $j | Select * -First 1
         if ( $correct ) {
             $answerRegex += "$($correct.Letter)"
@@ -131,7 +134,7 @@ Function Create-AnswerRegex {
         $answerRegex += "."
     }
 
-    #Write-Host $answerRegex
+    Write-Host $answerRegex
     return $answerRegex
 }
 
@@ -149,14 +152,13 @@ Function Create-ExcludeRegex {
     #Write-Host "Excluded: $($e -join '')"
 
     if ($e) {
-        $excludeRegex = "[^$($e -join '')]{5}"
+        $excludeRegex = "[^$($e -join '')]{$global:wordLength}"
     }
     else {
         $excludeRegex = '.'
     }
 
-    #Write-Host $excludeRegex
-
+    Write-Host $excludeRegex
     return $excludeRegex
 }
 
@@ -170,7 +172,7 @@ Function Create-IncludeRegex {
     #Write-Host "`n"
 
     $i = $global:includedLetters
-    #Write-Host $i 
+    Write-Host $i 
 
     #Write-Host "Included: $($i -join '')"
     $includeRegex = ""
@@ -188,7 +190,7 @@ Function Create-IncludeRegex {
         $includeRegex += "."
     }
 
-
+    Write-Host $includeRegex   
     return $includeRegex
 }
 
@@ -203,7 +205,7 @@ Function Create-IncludeRegex2 {
 
     $i2 = $($global:includedLetters.Letter | Sort-Object | Get-Unique)
 
-    #Write-Host "Included: $($i -join '')"
+    Write-Host "Included: $($i2 -join '')"
     $includeRegex2 = "\b"
     if ($i2.Length -gt 0) {
         for ($j = 0; $j -lt $i2.Length; $j++) {
@@ -215,7 +217,6 @@ Function Create-IncludeRegex2 {
         $includeRegex2 = '.....'
     }
 
-    #Write-Host $includeRegex2
-
+    Write-Host $includeRegex2
     return $includeRegex2
 }

@@ -1,7 +1,13 @@
 cls
 
 . "$PSSCriptRoot\wordle.ps1"
+$rnd = Get-Random -Minimum 0 -Maximum $($global:words.Count - 1)
+$answer = $global:words[$rnd]
 
+$excludeRegex = "."
+$includeRegex = "."
+$includeRegex2 = "."
+$answerRegex = "."
 #Write-Host $guess
 while (1) {
     #$regex
@@ -24,13 +30,15 @@ while (1) {
     $manualResult = Read-Host "Enter result"
     for ($i = 0; $i -lt $manualResult.Length; $i++) {
         $guessResult += [PSCustomObject]@{
-            Letter = $guess[$i]
-            Hint = [System.Int32]::Parse($manualResult[$i])
-            Placement = $i
+            Letter    = $guess[$i]
+            Placement = [System.Int32]::Parse($i)
+            #Placement = $i
+            Hint      = [System.Int32]::Parse($manualResult[$i])
+            #Hint      = $manualResult[$i]
         }
     }
 
-    #Write-Host $guessResult
+    Write-Host $guessResult
 
     $excludeRegex = Create-ExcludeRegex -GuessResult $guessResult
     $includeRegex = Create-IncludeRegex -GuessResult $guessResult
