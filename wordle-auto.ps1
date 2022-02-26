@@ -2,15 +2,15 @@ cls
 . "$PSSCriptRoot\wordle.ps1"
 
 $rnd = Get-Random -Minimum 0 -Maximum $($global:words.Count - 1)
-$answer = $global:words[$rnd]
+$answer = $($global:words[$rnd]).Word
 Write-Host "Answer: $answer"
 
 $guesses = 1
 while ($guess -ne $answer) {
     #$regex
     If ($guesses -eq 1) {
-        $rnd = Get-Random -Minimum 0 -Maximum $($global:words.Count - 1)
-        $guess = $global:words[$rnd]
+        #$rnd = Get-Random -Minimum 0 -Maximum $($global:words.Count - 1)
+        $guess = $($global:words[0]).Word
     }
     Else {
         $guess = Get-Guess -ExcludeRegex $excludeRegex -IncludeRegex $includeRegex -IncludeRegex2 $includeRegex2 -AnswerRegex $answerRegex
@@ -33,5 +33,7 @@ while ($guess -ne $answer) {
 
     
     "`n"
-    # Read-Host
+   
 }
+
+Read-Host

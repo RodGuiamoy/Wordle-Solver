@@ -2,7 +2,7 @@ cls
 $global:excludedLetters = @()
 $global:includedLetters = @()
 $global:correctLetters = @()
-$global:words = Get-Content "$PSScriptRoot\wordle.txt"
+$global:words = Import-CSV "$PSScriptRoot\wordScore.csv"
 $global:wordLength = 5
 
 Function Get-Guess {
@@ -13,56 +13,59 @@ Function Get-Guess {
         $answerRegex
     )
     
-    Write-Host $global:words.Length
+    #Write-Host $global:words.Length
 
     $exclusiveWords = @()
     foreach ($word in $global:words) {
-        If ($word -match $excludeRegex) {
+        If ($word.Word -match $excludeRegex) {
             $exclusiveWords += $word
         }
     }
     #Write-Host $excludeRegex
-    Write-Host $exclusiveWords.Length
+    #Write-Host $exclusiveWords.Length
 
     $inclusiveWords = @()
     foreach ($word in $exclusiveWords) {
-        If ($word -match $includeRegex) {
+        If ($word.Word -match $includeRegex) {
             $inclusiveWords += $word
         }
     }
     #Write-Host $includeRegex
-    Write-Host $inclusiveWords.Length
+    #Write-Host $inclusiveWords.Length
     
     $inclusiveWords2 = @()
     foreach ($word in $inclusiveWords) {
-        If ($word -match $includeRegex2) {
+        If ($word.Word -match $includeRegex2) {
             $inclusiveWords2 += $word
         }
     }
     #Write-Host $includeRegex2
-    Write-Host $inclusiveWords2.Length
+    #Write-Host $inclusiveWords2.Length
 
 
     $answerWords = @()
     foreach ($word in $inclusiveWords2) {
-        If ($word -match $answerRegex) {
+        If ($word.Word -match $answerRegex) {
             $answerWords += $word
         }
     }
     #Write-Host $answerRegex
-    Write-Host $answerWords.Length
+    #Write-Host $answerWords.Length
 
 
-    if ($answerWords.Length -gt 1) {
-        $rnd = Get-Random -Minimum 0 -Maximum $($answerWords.Length - 1)
-    }
-    else {
-        $rnd = 0
-    }
+    # if ($answerWords.Length -gt 1) {
+    #     $rnd = Get-Random -Minimum 0 -Maximum $($answerWords.Length - 1)
+    # }
+    # else {
+    #     $rnd = 0
+    # }
     
-    $global:words = $answerWords | Where { $_ -notcontains $answerWords[$rnd] }
+    $global:words = $answerWords
 
-    return $answerWords[$rnd]
+    #$guess = $($answerWords | Sort-Object -Property Score -Descending)[0]
+    $guess = $answerWords[0]
+    Write-Host $guess
+    return $guess.Word
 }
 
 Function Check-Guess {
@@ -106,7 +109,7 @@ Function Check-Guess {
     }
     "`n"
 
-    Write-Host $guessResult
+    #Write-Host $guessResult
     return $guessResult
 
 }
@@ -134,7 +137,7 @@ Function Create-AnswerRegex {
         $answerRegex += "."
     }
 
-    Write-Host $answerRegex
+    #Write-Host $answerRegex
     return $answerRegex
 }
 
@@ -158,7 +161,7 @@ Function Create-ExcludeRegex {
         $excludeRegex = '.'
     }
 
-    Write-Host $excludeRegex
+    #Write-Host $excludeRegex
     return $excludeRegex
 }
 
@@ -172,7 +175,7 @@ Function Create-IncludeRegex {
     #Write-Host "`n"
 
     $i = $global:includedLetters
-    Write-Host $i 
+    #Write-Host $i 
 
     #Write-Host "Included: $($i -join '')"
     $includeRegex = ""
@@ -190,7 +193,7 @@ Function Create-IncludeRegex {
         $includeRegex += "."
     }
 
-    Write-Host $includeRegex   
+    #Write-Host $includeRegex   
     return $includeRegex
 }
 
@@ -205,7 +208,7 @@ Function Create-IncludeRegex2 {
 
     $i2 = $($global:includedLetters.Letter | Sort-Object | Get-Unique)
 
-    Write-Host "Included: $($i2 -join '')"
+    #Write-Host "Included: $($i2 -join '')"
     $includeRegex2 = "\b"
     if ($i2.Length -gt 0) {
         for ($j = 0; $j -lt $i2.Length; $j++) {
@@ -217,6 +220,6 @@ Function Create-IncludeRegex2 {
         $includeRegex2 = '.....'
     }
 
-    Write-Host $includeRegex2
+    #Write-Host $includeRegex2
     return $includeRegex2
 }
